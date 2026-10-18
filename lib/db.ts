@@ -9,7 +9,7 @@ const globalForMongoose = globalThis as unknown as {
 export function connectDB() {
   const uri = process.env.MONGODB_URI;
   if (!uri) {
-    throw new Error("缺少環境變數 MONGODB_URI");
+    throw new Error("缺少環境變數 MONGODB_URI（請在 .env.local 或 Vercel 的 Environment Variables 設定，名稱要完全一致）");
   }
 
   if (!globalForMongoose.mongooseConn) {

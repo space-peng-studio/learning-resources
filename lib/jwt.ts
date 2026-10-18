@@ -19,7 +19,7 @@ export type SessionPayload = {
 
 function secretKey() {
   const secret = process.env.JWT_SECRET;
-  if (!secret) throw new Error("缺少環境變數 JWT_SECRET");
+  if (!secret) throw new Error("缺少環境變數 JWT_SECRET（請在 .env.local 或 Vercel 的 Environment Variables 設定，名稱要完全一致）");
   return new TextEncoder().encode(secret);
 }
 

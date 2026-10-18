@@ -49,6 +49,18 @@ function nextPath(formData: FormData) {
 }
 
 const SERVER_ERROR = "伺服器暫時連不上，請稍後再試一次。";
+const SESSION_ERROR = "登入暫時無法完成，請稍後再試一次。";
+
+// 建立登入憑證；失敗時（例如伺服器少了 JWT_SECRET 設定）記錄原因並回傳 false，讓表單顯示訊息
+async function startSession(user: Parameters<typeof createSession>[0]) {
+  try {
+    await createSession(user);
+    return true;
+  } catch (err) {
+    console.error(err);
+    return false;
+  }
+}
 
 export async function signup(_prev: FormState, formData: FormData): Promise<FormState> {
   const name = field(formData, "name");
@@ -77,7 +89,7 @@ export async function signup(_prev: FormState, formData: FormData): Promise<Form
     return { error: SERVER_ERROR, values };
   }
 
-  await createSession(user);
+  if (!(await startSession(user))) return { error: SESSION_ERROR, values };
   redirect(nextPath(formData));
 }
 
@@ -103,7 +115,7 @@ export async function login(_prev: FormState, formData: FormData): Promise<FormS
     return { error: SERVER_ERROR, values };
   }
 
-  await createSession(user);
+  if (!(await startSession(user))) return { error: SESSION_ERROR, values };
   redirect(user.mustChangePassword ? "/set-password" : nextPath(formData));
 }
 
