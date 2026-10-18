@@ -23,7 +23,7 @@ async function PracticeLoader() {
       return <PracticeApp initialState={EMPTY_PRACTICE} guestLoginHref={stale ? "/logout" : "/login?next=%2Fpractice"} />;
     }
     const [state, history] = await Promise.all([getPracticeState(user.id), getQuizHistory(user.id)]);
-    return <PracticeApp initialState={state} quizStage={history.at(-1)?.stage} />;
+    return <PracticeApp initialState={state} quizStage={history.at(-1)?.stage} userName={user.name} />;
   }, <BusyNotice />);
 }
 

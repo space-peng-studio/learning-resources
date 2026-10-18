@@ -15,6 +15,7 @@ import {
 } from "@/lib/practice";
 import { usePractice } from "@/lib/usePractice";
 import GuestNotice from "@/components/GuestNotice";
+import ShareCheckIn from "./ShareCheckIn";
 
 const WEEKDAYS = ["日", "一", "二", "三", "四", "五", "六"];
 
@@ -50,10 +51,12 @@ export default function PracticeApp({
   initialState,
   quizStage,
   guestLoginHref,
+  userName,
 }: {
   initialState: PracticeState;
   quizStage?: StageKey;
   guestLoginHref?: string;
+  userName?: string;
 }) {
   const today = useToday();
   const { state, dispatch, error } = usePractice(initialState, !guestLoginHref);
@@ -64,6 +67,7 @@ export default function PracticeApp({
 
   const activeStage = stageByKey(tab ?? quizStage ?? "seed");
   const days = practiceDays(state);
+  const monthDays = days.filter((d) => d.startsWith(today.slice(0, 7))).length;
   const checkedIn = (state.log[today]?.length ?? 0) > 0;
   const finished = completedTasks(state);
   const finishedIds = new Set(finished.map((t) => t.practice.id));
@@ -139,7 +143,7 @@ export default function PracticeApp({
           <div className="rounded-2xl bg-white/70 px-4 py-3">
             <p className="text-xs tracking-widest text-muted">本月修行</p>
             <p className="mt-1 text-sm text-ink">
-              <b className="font-serif text-3xl text-gold">{days.filter((d) => d.startsWith(today.slice(0, 7))).length}</b> 天
+              <b className="font-serif text-3xl text-gold">{monthDays}</b> 天
             </p>
           </div>
         </div>
@@ -148,6 +152,16 @@ export default function PracticeApp({
           <br />
           斷了一天沒關係，接著數就好，不用歸零重來。
         </p>
+        {/* 只有登入學員的紀錄是真的累積，才開放分享 */}
+        {days.length > 0 && userName && (
+          <ShareCheckIn
+            name={userName}
+            checkedIn={checkedIn}
+            totalDays={days.length}
+            monthDays={monthDays}
+            today={today}
+          />
+        )}
       </section>
 
       {/* 我的練習 */}

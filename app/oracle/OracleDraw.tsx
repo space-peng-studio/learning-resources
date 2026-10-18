@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { oracleMessages } from "@/lib/oracleMessages";
 import { CardBack, CardFront, cardNumber } from "./OracleCard";
+import { shareOrDownload } from "@/lib/cardCanvas";
 import { drawCard } from "./drawCard";
 
 // 扇形展開的牌數與每張間隔角度
@@ -74,27 +75,11 @@ export default function OracleDraw() {
     setSaving(true);
     const filename = `豐盛指引-${cardNumber(card).replace(/\W/g, "")}.png`;
     try {
-      const blob = await drawCard(oracleMessages[card], card);
-      const file = new File([blob], filename, { type: blob.type });
-
       // 手機上用分享選單，才能直接「儲存影像」到相簿
-      const isTouch = window.matchMedia("(pointer: coarse)").matches;
-      if (isTouch && navigator.canShare?.({ files: [file] })) {
-        await navigator.share({ files: [file] });
-      } else {
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = filename;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
+      await shareOrDownload(await drawCard(oracleMessages[card], card), filename);
     } catch (err) {
-      // 使用者自己關掉分享選單，不算錯誤
-      if (!(err instanceof DOMException && err.name === "AbortError")) {
-        console.error(err);
-        alert("圖片沒有產生成功，請再試一次。");
-      }
+      console.error(err);
+      alert("圖片沒有產生成功，請再試一次。");
     } finally {
       setSaving(false);
     }
